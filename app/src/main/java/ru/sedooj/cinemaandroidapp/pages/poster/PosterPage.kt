@@ -15,19 +15,12 @@ import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenConten
 fun PosterPage(
     modifier: Modifier = Modifier,
     padding: PaddingValues,
-    navController: NavController
 ) {
     ScrollableCenteredScreenContentComponent(
         modifier = modifier,
         mainPaddingValue = padding,
         title = Screens.POSTER.pageName,
-        navigationIcon = {
-            NavigationIconComponent(
-                navController = navController,
-                icon = painterResource(id = R.drawable.arrow_back),
-                description = "Back"
-            )
-        },
+        navigationIcon = {},
         content = {
             Text(text = Screens.POSTER.pageName)
         }
