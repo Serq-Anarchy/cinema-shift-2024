@@ -9,9 +9,13 @@ espresso-core = "3.5.1"
 lifecycle-runtime-ktx = "2.7.0"
 activity-compose = "1.8.2"
 compose-bom = "2024.01.00"
-nav_version = "2.7.6"
 
+#Navigation
+nav_version = "2.7.6"
 material_version = "1.6.0"
+
+#Network
+ktor_version="2.3.7"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -33,6 +37,9 @@ material3 = { group = "androidx.compose.material3", name = "material3" }
 #Navigation
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "nav_version" }
 
+#Network
+network-ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor_version"}
+network-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor_version"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

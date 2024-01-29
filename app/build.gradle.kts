@@ -52,8 +52,12 @@ android {
 
 dependencies {
 
-    //Navigation
+    // Navigation
     implementation(libs.navigation.compose)
+
+    // Network
+    implementation(libs.network.ktor.client.core)
+    implementation(libs.network.ktor.client.cio)
 
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
