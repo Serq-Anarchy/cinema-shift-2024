@@ -1,9 +1,9 @@
-package ru.sedooj.cinemaandroidapp.network.otp
+package ru.sedooj.cinemaandroidapp.network.otps
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GetOtpResponse (
+data class GetOtpsResponse (
     val success : Boolean,
     val retryDelay : Long
 )

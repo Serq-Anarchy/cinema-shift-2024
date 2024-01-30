@@ -7,7 +7,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
-import ru.sedooj.cinemaandroidapp.network.otp.GetOtpImpl
+import ru.sedooj.cinemaandroidapp.network.otps.GetOtpsImpl
 
 interface Client {
     val defaultURL : String
@@ -15,7 +15,7 @@ interface Client {
 
     companion object {
         fun create(): Client {
-            return GetOtpImpl(
+            return GetOtpsImpl(
                 client = HttpClient(Android) {
                     install(Logging) {
                         class ClientLogger : Logger {

@@ -1,4 +1,4 @@
-package ru.sedooj.cinemaandroidapp.network.otp
+package ru.sedooj.cinemaandroidapp.network.otps
 
 import kotlinx.serialization.Serializable
 
