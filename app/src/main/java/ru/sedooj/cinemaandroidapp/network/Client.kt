@@ -14,9 +14,8 @@ interface Client {
         get() = "https://shift-backend.onrender.com"
 
     companion object {
-        fun create(): Client {
-            return GetOtpsImpl(
-                client = HttpClient(Android) {
+        fun create(): HttpClient {
+            return HttpClient(Android) {
                     install(Logging) {
                         class ClientLogger : Logger {
                             override fun log(message: String) {
@@ -30,7 +29,7 @@ interface Client {
                         json()
                     }
                 }
-            )
+
         }
     }
 
