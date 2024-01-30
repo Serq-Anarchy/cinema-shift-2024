@@ -10,12 +10,16 @@ lifecycle-runtime-ktx = "2.7.0"
 activity-compose = "1.8.2"
 compose-bom = "2024.01.00"
 
-#Navigation
+# Navigation
 nav_version = "2.7.6"
 material_version = "1.6.0"
 
-#Network
-ktor_version="2.3.7"
+# Network
+ktor_version = "2.3.7"
+serialization_version = "1.6.2"
+
+# Coroutines
+coroutines_version = "1.3.9"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -31,15 +35,23 @@ ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-material = { group = "androidx.compose.material", name = "material", version.ref = "material_version"}
+material = { group = "androidx.compose.material", name = "material", version.ref = "material_version" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 
-#Navigation
+# Navigation
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "nav_version" }
 
-#Network
-network-ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor_version"}
-network-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor_version"}
+# Network
+network-ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor_version" }
+network-ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor_version" }
+network-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor_version" }
+network-ktor-client-serialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor_version" }
+kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization_version" }
+network-ktor-client-negotiation = { group="io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor_version"}
+network-ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor_version" }
+
+# Coroutines
+kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines_version" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

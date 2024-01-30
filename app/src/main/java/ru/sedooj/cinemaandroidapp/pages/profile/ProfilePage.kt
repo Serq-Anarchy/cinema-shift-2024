@@ -1,6 +1,7 @@
 package ru.sedooj.cinemaandroidapp.pages.profile
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import ru.sedooj.cinemaandroidapp.navigation.Screens
@@ -17,7 +18,7 @@ fun ProfilePage(
         title = Screens.PROFILE.pageName,
         navigationIcon = {},
         content = {
-            androidx.compose.material3.Text(text = Screens.PROFILE.pageName)
+            Text(text = Screens.PROFILE.pageName)
         }
     )
 }
