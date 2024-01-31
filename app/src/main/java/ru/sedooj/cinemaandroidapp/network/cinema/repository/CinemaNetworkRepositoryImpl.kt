@@ -1,9 +1,12 @@
-package ru.sedooj.cinemaandroidapp.network.cinema
+package ru.sedooj.cinemaandroidapp.network.cinema.repository
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import ru.sedooj.cinemaandroidapp.network.Data
+import ru.sedooj.cinemaandroidapp.network.cinema.film.GetFilmByIdInput
+import ru.sedooj.cinemaandroidapp.network.cinema.film.GetFilmByIdOutput
+import ru.sedooj.cinemaandroidapp.network.cinema.todayFilms.AllTodayFilmsOutput
 
 class CinemaNetworkRepositoryImpl(
     private val client: HttpClient

@@ -43,8 +43,8 @@ import ru.sedooj.cinemaandroidapp.R
 import ru.sedooj.cinemaandroidapp.navigation.Screens
 import ru.sedooj.cinemaandroidapp.network.Client
 import ru.sedooj.cinemaandroidapp.network.Data
-import ru.sedooj.cinemaandroidapp.network.cinema.AllTodayFilmsOutput
-import ru.sedooj.cinemaandroidapp.network.cinema.CinemaNetworkRepositoryImpl
+import ru.sedooj.cinemaandroidapp.network.cinema.todayFilms.AllTodayFilmsOutput
+import ru.sedooj.cinemaandroidapp.network.cinema.repository.CinemaNetworkRepositoryImpl
 import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenContentComponent
 
 @Composable

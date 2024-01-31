@@ -1,11 +1,11 @@
-package ru.sedooj.cinemaandroidapp.network.cinema
+package ru.sedooj.cinemaandroidapp.network.cinema.todayFilms
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GetFilmByIdOutput(
+data class AllTodayFilmsOutput(
     val success: Boolean,
-    val film: Film
+    val films: List<Film>
 ) {
 
     @Serializable
@@ -37,4 +37,3 @@ data class GetFilmByIdOutput(
         val fullName: String
     )
 }
-
