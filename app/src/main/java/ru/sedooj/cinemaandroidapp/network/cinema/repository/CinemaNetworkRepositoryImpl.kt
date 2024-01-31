@@ -6,6 +6,8 @@ import io.ktor.client.request.get
 import ru.sedooj.cinemaandroidapp.network.Data
 import ru.sedooj.cinemaandroidapp.network.cinema.film.GetFilmByIdInput
 import ru.sedooj.cinemaandroidapp.network.cinema.film.GetFilmByIdOutput
+import ru.sedooj.cinemaandroidapp.network.cinema.film.schedule.GetFilmScheduleByIdInput
+import ru.sedooj.cinemaandroidapp.network.cinema.film.schedule.GetFilmScheduleByIdOutput
 import ru.sedooj.cinemaandroidapp.network.cinema.todayFilms.AllTodayFilmsOutput
 
 class CinemaNetworkRepositoryImpl(
@@ -41,7 +43,13 @@ class CinemaNetworkRepositoryImpl(
                     ageRating = film.ageRating,
                     genres = film.genres,
                     userRatings = film.userRatings,
-                    img = film.img
+                    img = film.img,
+                    country = AllTodayFilmsOutput.Country(
+                        id = film.country.id,
+                        code = film.country.code,
+                        code2 = film.country.code2,
+                        name = film.country.name
+                    )
 
                 )
             }
@@ -77,8 +85,50 @@ class CinemaNetworkRepositoryImpl(
                 ageRating = body.film.ageRating,
                 genres = body.film.genres,
                 userRatings = body.film.userRatings,
-                img = body.film.img
+                img = body.film.img,
+                country = GetFilmByIdOutput.Country(
+                    id = body.film.country.id,
+                    code = body.film.country.code,
+                    code2 = body.film.country.code2,
+                    name = body.film.country.name
+
+                )
             )
+        )
+    }
+
+    override suspend fun getFilmScheduleById(input: GetFilmScheduleByIdInput): GetFilmScheduleByIdOutput? {
+        val response = client.get("${Data.BASE_URL}/cinema/film/${input.id}/schedule")
+        val body = response.body<GetFilmScheduleByIdOutput>()
+        return GetFilmScheduleByIdOutput(
+            success = body.success,
+            schedules = body.schedules.map { schedule ->
+                GetFilmScheduleByIdOutput.Schedule(
+                    date = schedule.date,
+                    seances = schedule.seances.map { seance ->
+                        GetFilmScheduleByIdOutput.Seance(
+                            time = seance.time,
+                            hall = GetFilmScheduleByIdOutput.Hall(
+                                name = seance.hall.name,
+                                places = seance.hall.places.map {
+                                    it.map { place ->
+                                        GetFilmScheduleByIdOutput.Place(
+                                            type = place.type,
+                                            price = place.price
+                                        )
+                                    }
+                                }
+                            ),
+                            payedTickets = seance.payedTickets.map { payedTicket ->
+                                GetFilmScheduleByIdOutput.Place(
+                                    price = payedTicket.price,
+                                    type = payedTicket.type
+                                )
+                            }
+                        )
+                    }
+                )
+            }
         )
     }
 }

@@ -22,6 +22,7 @@ data class GetFilmByIdOutput(
         val genres: List<String>,
         val userRatings: Map<String, String>,
         val img: String,
+        val country: Country
     )
 
     @Serializable
@@ -35,6 +36,14 @@ data class GetFilmByIdOutput(
         val id: Long,
         val professions: List<String>,
         val fullName: String
+    )
+
+    @Serializable
+    data class Country(
+        val id: Long,
+        val code: String,
+        val code2: String,
+        val name: String
     )
 }
 

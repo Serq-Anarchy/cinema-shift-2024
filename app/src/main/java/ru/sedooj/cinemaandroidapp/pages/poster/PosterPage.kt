@@ -43,8 +43,8 @@ import ru.sedooj.cinemaandroidapp.R
 import ru.sedooj.cinemaandroidapp.navigation.Screens
 import ru.sedooj.cinemaandroidapp.network.Client
 import ru.sedooj.cinemaandroidapp.network.Data
-import ru.sedooj.cinemaandroidapp.network.cinema.todayFilms.AllTodayFilmsOutput
 import ru.sedooj.cinemaandroidapp.network.cinema.repository.CinemaNetworkRepositoryImpl
+import ru.sedooj.cinemaandroidapp.network.cinema.todayFilms.AllTodayFilmsOutput
 import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenContentComponent
 
 @Composable
@@ -84,7 +84,8 @@ fun PosterPage(
                         onSchedule = {
 
                         },
-                        modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                        modifier = Modifier.padding(start = 10.dp, end = 10.dp),
+                        country = film.country.name
                     )
                 }
             } else {
@@ -107,8 +108,6 @@ fun PosterPage(
                 )
 
             }
-
-
         }
     )
 }
@@ -127,7 +126,8 @@ private fun FilmItem(
     userRatings: Map<String, String>,
     img: String,
     onSchedule: () -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    country: String
 ) {
 
     val isExpanded = remember { mutableStateOf(false) }
@@ -151,7 +151,8 @@ private fun FilmItem(
                     directors = directors,
                     genres = genres,
                     ageRating = ageRating,
-                    onSchedule = { onSchedule() }
+                    onSchedule = { onSchedule() },
+                    country = country
                 )
             }
             this.AnimatedVisibility(visible = !isExpanded.value) {
@@ -324,13 +325,15 @@ private fun DetailsCardBarComponent(
     actors: List<AllTodayFilmsOutput.Actor>,
     directors: List<AllTodayFilmsOutput.Director>,
     genres: List<String>,
-    onSchedule: () -> Unit
+    onSchedule: () -> Unit,
+    country: String
 ) {
     Column(
         modifier = Modifier.padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.Start,
         content = {
+            Text(text = "Страна: $country", fontWeight = FontWeight.Bold)
             Text(text = "Возрастные ограничения: $ageRating", textAlign = TextAlign.End)
             Text(
                 text = description,
