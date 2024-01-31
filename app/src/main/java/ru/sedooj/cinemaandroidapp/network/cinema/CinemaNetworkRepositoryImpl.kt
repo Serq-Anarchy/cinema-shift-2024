@@ -8,27 +8,27 @@ import ru.sedooj.cinemaandroidapp.network.Data
 class CinemaNetworkRepositoryImpl(
     private val client: HttpClient
 ) : CinemaNetworkRepository {
-    override suspend fun getAllTodayFilms(): AllTodayFilmsResponse? {
+    override suspend fun getAllTodayFilms(): AllTodayFilmsOutput? {
         val response = client.get("${Data.BASE_URL}/cinema/today")
-        val body = response.body<AllTodayFilmsResponse>()
-        return AllTodayFilmsResponse(
+        val body = response.body<AllTodayFilmsOutput>()
+        return AllTodayFilmsOutput(
             success = body.success,
             films = body.films.map { film ->
-                AllTodayFilmsResponse.Film(
+                AllTodayFilmsOutput.Film(
                     id = film.id,
                     name = film.name,
                     originalName = film.originalName,
                     description = film.description,
                     releaseDate = film.releaseDate,
                     actors = film.actors.map { actor ->
-                        AllTodayFilmsResponse.Actor(
+                        AllTodayFilmsOutput.Actor(
                             id = actor.id,
                             professions = actor.professions,
                             fullName = actor.fullName
                         )
                     },
                     directors = film.directors.map { director ->
-                        AllTodayFilmsResponse.Director(
+                        AllTodayFilmsOutput.Director(
                             id = director.id,
                             professions = director.professions,
                             fullName = director.fullName
@@ -45,5 +45,37 @@ class CinemaNetworkRepositoryImpl(
         )
     }
 
-
+    override suspend fun getFilmById(input: GetFilmByIdInput): GetFilmByIdOutput? {
+        val response = client.get("${Data.BASE_URL}/cinema/film/${input.id}")
+        val body = response.body<GetFilmByIdOutput>()
+        return GetFilmByIdOutput(
+            success = body.success,
+            film = GetFilmByIdOutput.Film(
+                id = body.film.id,
+                name = body.film.name,
+                originalName = body.film.originalName,
+                description = body.film.description,
+                releaseDate = body.film.releaseDate,
+                actors = body.film.actors.map { actor ->
+                    GetFilmByIdOutput.Actor(
+                        id = actor.id,
+                        professions = actor.professions,
+                        fullName = actor.fullName
+                    )
+                },
+                directors = body.film.directors.map { director ->
+                    GetFilmByIdOutput.Director(
+                        id = director.id,
+                        professions = director.professions,
+                        fullName = director.fullName
+                    )
+                },
+                runtime = body.film.runtime,
+                ageRating = body.film.ageRating,
+                genres = body.film.genres,
+                userRatings = body.film.userRatings,
+                img = body.film.img
+            )
+        )
+    }
 }

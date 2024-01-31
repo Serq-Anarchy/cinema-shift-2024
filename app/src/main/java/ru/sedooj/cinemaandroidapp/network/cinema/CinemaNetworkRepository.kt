@@ -4,6 +4,7 @@ import ru.sedooj.cinemaandroidapp.network.Client
 
 interface CinemaNetworkRepository : Client {
 
-    suspend fun getAllTodayFilms() : AllTodayFilmsResponse?
+    suspend fun getAllTodayFilms() : AllTodayFilmsOutput?
 
+    suspend fun getFilmById(input: GetFilmByIdInput): GetFilmByIdOutput?
 }

@@ -4,6 +4,6 @@ import ru.sedooj.cinemaandroidapp.network.Client
 
 interface GetOtps : Client {
 
-    suspend fun getOtpsCode(getOtpRequest: GetOtpRequest): GetOtpsResponse?
+    suspend fun getOtpsCode(getOtpInput: GetOtpInput): GetOtpsResponse?
 
 }

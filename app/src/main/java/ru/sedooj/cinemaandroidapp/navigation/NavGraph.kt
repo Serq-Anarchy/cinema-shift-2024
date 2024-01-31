@@ -54,7 +54,7 @@ fun SetupNavigation(
         composable(
             route = Screens.POSTER.route
         ) {
-            PosterPage(padding = padding)
+            PosterPage(padding = padding, navController = navController)
         }
 
         composable(

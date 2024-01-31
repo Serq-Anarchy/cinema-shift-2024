@@ -37,12 +37,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import ru.sedooj.cinemaandroidapp.R
 import ru.sedooj.cinemaandroidapp.navigation.Screens
 import ru.sedooj.cinemaandroidapp.network.Client
 import ru.sedooj.cinemaandroidapp.network.Data
-import ru.sedooj.cinemaandroidapp.network.cinema.AllTodayFilmsResponse
+import ru.sedooj.cinemaandroidapp.network.cinema.AllTodayFilmsOutput
 import ru.sedooj.cinemaandroidapp.network.cinema.CinemaNetworkRepositoryImpl
 import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenContentComponent
 
@@ -50,6 +51,7 @@ import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenConten
 fun PosterPage(
     modifier: Modifier = Modifier,
     padding: PaddingValues,
+    navController: NavController
 ) {
     ScrollableCenteredScreenContentComponent(
         modifier = modifier,
@@ -58,7 +60,7 @@ fun PosterPage(
         navigationIcon = {},
         content = {
             val client = remember { Client.create() }
-            val state = remember { mutableStateOf<AllTodayFilmsResponse?>(null) }
+            val state = remember { mutableStateOf<AllTodayFilmsOutput?>(null) }
             val cinemaNetworkRepository = remember { CinemaNetworkRepositoryImpl(client = client) }
 
             LaunchedEffect(key1 = true) {
@@ -79,6 +81,9 @@ fun PosterPage(
                         genres = film.genres,
                         userRatings = film.userRatings,
                         img = film.img,
+                        onSchedule = {
+
+                        },
                         modifier = Modifier.padding(start = 10.dp, end = 10.dp)
                     )
                 }
@@ -114,13 +119,14 @@ private fun FilmItem(
     originalName: String,
     description: String,
     releaseDate: String,
-    actors: List<AllTodayFilmsResponse.Actor>,
-    directors: List<AllTodayFilmsResponse.Director>,
+    actors: List<AllTodayFilmsOutput.Actor>,
+    directors: List<AllTodayFilmsOutput.Director>,
     runtime: Int,
     ageRating: String,
     genres: List<String>,
     userRatings: Map<String, String>,
     img: String,
+    onSchedule: () -> Unit,
     modifier: Modifier
 ) {
 
@@ -144,7 +150,8 @@ private fun FilmItem(
                     actors = actors,
                     directors = directors,
                     genres = genres,
-                    ageRating = ageRating
+                    ageRating = ageRating,
+                    onSchedule = { onSchedule() }
                 )
             }
             this.AnimatedVisibility(visible = !isExpanded.value) {
@@ -314,9 +321,10 @@ private fun DetailsCardBarComponent(
     releaseDate: String,
     runtime: Int,
     ageRating: String,
-    actors: List<AllTodayFilmsResponse.Actor>,
-    directors: List<AllTodayFilmsResponse.Director>,
-    genres: List<String>
+    actors: List<AllTodayFilmsOutput.Actor>,
+    directors: List<AllTodayFilmsOutput.Director>,
+    genres: List<String>,
+    onSchedule: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(10.dp),
@@ -377,7 +385,7 @@ private fun DetailsCardBarComponent(
                         })
                     // Watch schedule
                     Button(
-                        onClick = { /*TODO: Открыть страницу с расписанием */ },
+                        onClick = { onSchedule() },
                         shape = RoundedCornerShape(size = 15.dp),
                         modifier = Modifier
                             .weight(5f)

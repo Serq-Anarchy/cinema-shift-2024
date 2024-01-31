@@ -12,12 +12,12 @@ class GetOtpsImpl(
     private val client: HttpClient
 ) : GetOtps {
 
-    override suspend fun getOtpsCode(getOtpRequest: GetOtpRequest): GetOtpsResponse? {
+    override suspend fun getOtpsCode(getOtpInput: GetOtpInput): GetOtpsResponse? {
         return client.post("${Data.BASE_URL}/auth/otp/") {
             contentType(ContentType.Application.Json)
             setBody(
-                GetOtpRequest(
-                    phone = getOtpRequest.phone
+                GetOtpInput(
+                    phone = getOtpInput.phone
                 )
             )
         }.body()
