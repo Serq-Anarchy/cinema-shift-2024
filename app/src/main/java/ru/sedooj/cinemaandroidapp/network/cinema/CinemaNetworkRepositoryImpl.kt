@@ -3,12 +3,13 @@ package ru.sedooj.cinemaandroidapp.network.cinema
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import ru.sedooj.cinemaandroidapp.network.Data
 
-class CinemaImpl(
+class CinemaNetworkRepositoryImpl(
     private val client: HttpClient
-) : Cinema {
+) : CinemaNetworkRepository {
     override suspend fun getAllTodayFilms(): AllTodayFilmsResponse? {
-        val response = client.get("$defaultURL/cinema/today")
+        val response = client.get("${Data.BASE_URL}/cinema/today")
         val body = response.body<AllTodayFilmsResponse>()
         return AllTodayFilmsResponse(
             success = body.success,

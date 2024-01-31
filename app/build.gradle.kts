@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.network.ktor.client.serialization)
     implementation(libs.network.ktor.client.negotiation)
     implementation(libs.network.ktor.client.logging)
+    implementation(libs.network.coil)
     implementation(libs.kotlinx.serialization)
 
     // Coroutines

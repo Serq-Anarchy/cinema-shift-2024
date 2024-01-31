@@ -7,11 +7,15 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
-import ru.sedooj.cinemaandroidapp.network.otps.GetOtpsImpl
+import kotlinx.serialization.json.Json
+
+object Data {
+
+    const val BASE_URL: String = "https://shift-backend.onrender.com"
+
+}
 
 interface Client {
-    val defaultURL : String
-        get() = "https://shift-backend.onrender.com"
 
     companion object {
         fun create(): HttpClient {
@@ -26,7 +30,9 @@ interface Client {
                         logger = clientLogger
                     }
                     install(ContentNegotiation) {
-                        json()
+                        json(Json {
+                            this.coerceInputValues = true
+                        })
                     }
                 }
 

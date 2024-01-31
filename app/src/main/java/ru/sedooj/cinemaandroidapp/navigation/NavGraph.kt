@@ -21,13 +21,14 @@ fun SetupNavigation(
     navController: NavHostController,
     padding: PaddingValues
 ) {
-    val noEnterTransition : AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition = {
-        fadeIn(
-            animationSpec = tween(durationMillis = 300),
-            initialAlpha = 0.99f
-        )
-    }
-    val noExitTransition : AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
+    val noEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
+        {
+            fadeIn(
+                animationSpec = tween(durationMillis = 300),
+                initialAlpha = 0.99f
+            )
+        }
+    val noExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition = {
         fadeOut(
             animationSpec = tween(durationMillis = 300),
             targetAlpha = 0.99f

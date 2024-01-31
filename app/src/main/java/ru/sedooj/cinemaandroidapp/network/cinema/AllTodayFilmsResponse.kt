@@ -18,11 +18,10 @@ data class AllTodayFilmsResponse(
         val actors: List<Actor>,
         val directors: List<Director>,
         val runtime: Int,
-        val ageRating: Int,
+        val ageRating: String,
         val genres: List<String>,
         val userRatings: Map<String, String>,
         val img: String,
-
     )
 
     @Serializable
