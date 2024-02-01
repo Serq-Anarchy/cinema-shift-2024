@@ -2,6 +2,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    kotlin("plugin.serialization") version "1.9.21"
 }
 
 android {
@@ -52,6 +53,22 @@ android {
 
 dependencies {
 
+    // Navigation
+    implementation(libs.navigation.compose)
+
+    // Network
+    implementation(libs.network.ktor.client.core)
+    implementation(libs.network.ktor.client.android)
+    implementation(libs.network.ktor.client.cio)
+    implementation(libs.network.ktor.client.serialization)
+    implementation(libs.network.ktor.client.negotiation)
+    implementation(libs.network.ktor.client.logging)
+    implementation(libs.network.coil)
+    implementation(libs.kotlinx.serialization)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines)
+
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)
@@ -59,6 +76,7 @@ dependencies {
     implementation(libs.ui)
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
+    implementation(libs.material)
     implementation(libs.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
