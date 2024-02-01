@@ -46,6 +46,7 @@ import ru.sedooj.cinemaandroidapp.network.Client
 import ru.sedooj.cinemaandroidapp.network.Data
 import ru.sedooj.cinemaandroidapp.network.cinema.repository.CinemaNetworkRepositoryImpl
 import ru.sedooj.cinemaandroidapp.network.cinema.todayFilms.AllTodayFilmsOutput
+import ru.sedooj.cinemaandroidapp.ui.design.pages.PageDataLoadingComponent
 import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenContentComponent
 
 @Composable
@@ -94,24 +95,9 @@ fun PosterPage(
                     )
                 }
             } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                    content = {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            androidx.compose.material.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                            Text(
-                                text = "Загрузка списка фильмов...",
-                                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
+                PageDataLoadingComponent(
+                    title = "Загрузка списка фильмов..."
                 )
-
             }
         }
     )
