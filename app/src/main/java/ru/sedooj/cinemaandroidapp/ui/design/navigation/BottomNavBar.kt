@@ -29,24 +29,25 @@ fun BottomNavBar(
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
         Screens.entries.forEach { page ->
-            NavigationBarItem(
-                selected = currentRoute == page.route,
-                onClick = {
-                    if (currentRoute != page.route) {
-                        navController.navigate(route = page.route)
+            if (page.isBottomBarPage)
+                NavigationBarItem(
+                    selected = currentRoute == page.route,
+                    onClick = {
+                        if (currentRoute != page.route) {
+                            navController.navigate(route = page.route)
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(page.icon),
+                            contentDescription = page.pageName,
+                            modifier = Modifier.size(25.dp)
+                        )
+                    },
+                    label = {
+                        Text(text = page.pageName, color = MaterialTheme.colorScheme.onBackground)
                     }
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(page.icon),
-                        contentDescription = page.pageName,
-                        modifier = Modifier.size(25.dp)
-                    )
-                },
-                label = {
-                    Text(text = page.pageName, color = MaterialTheme.colorScheme.onBackground)
-                }
-            )
+                )
         }
     }
 }

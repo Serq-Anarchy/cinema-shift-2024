@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import coil.compose.AsyncImage
 import ru.sedooj.cinemaandroidapp.R
 import ru.sedooj.cinemaandroidapp.navigation.Screens
@@ -82,7 +83,11 @@ fun PosterPage(
                         userRatings = film.userRatings,
                         img = film.img,
                         onSchedule = {
-
+                            navController.navigate("${Screens.SCHEDULE.route}/${film.id}") {
+                                popUpTo(navController.graph.findStartDestination().id)
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         },
                         modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                         country = film.country.name
