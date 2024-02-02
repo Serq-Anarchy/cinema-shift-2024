@@ -1,5 +1,6 @@
 package ru.sedooj.cinemaandroidapp.pages.poster.schedule
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -61,6 +62,16 @@ fun String.translate(): String {
     }
 }
 
+data class SelectedHallTimeState(
+    var hall: String = "",
+    var time: String = "",
+    var date: String = ""
+)
+
+val filmState = mutableStateOf<GetFilmByIdOutput?>(null)
+val scheduleState = mutableStateOf<GetFilmScheduleByIdOutput?>(null)
+val selectedSeanceState = mutableStateOf<SelectedHallTimeState?>(null)
+
 @Composable
 fun SchedulePage(
     modifier: Modifier = Modifier,
@@ -68,13 +79,20 @@ fun SchedulePage(
     filmId: Long?,
     navController: NavController
 ) {
+    BackHandler(onBack = {
+        onBack()
+        navController.popBackStack()
+    })
     ScrollableCenteredScreenContentComponent(
         modifier = modifier,
         mainPaddingValue = padding,
         title = Screens.SCHEDULE.pageName,
         navigationIcon = {
             IconButton(
-                onClick = { navController.popBackStack() },
+                onClick = {
+                    onBack()
+                    navController.popBackStack()
+                },
                 modifier = Modifier,
                 content = {
                     Icon(
@@ -109,7 +127,6 @@ fun SchedulePage(
     )
 }
 
-val filmState = mutableStateOf<GetFilmByIdOutput?>(null)
 
 @Composable
 private fun FilmPreviewComponent(
@@ -117,6 +134,7 @@ private fun FilmPreviewComponent(
     modifier: Modifier,
     cinemaNetworkRepository: CinemaNetworkRepositoryImpl
 ) {
+
     if (filmState.value == null) {
         PageDataLoadingComponent(
             title = "Загрузка данных фильма..."
@@ -215,13 +233,6 @@ private fun FilmDataComponent(
     )
 }
 
-val scheduleState = mutableStateOf<GetFilmScheduleByIdOutput?>(null)
-
-private data class SelectedHallTimeState(
-    var hall: String = "",
-    var time: String = "",
-    var date: String = ""
-)
 
 @Composable
 private fun ScheduleDataComponent(
@@ -229,9 +240,7 @@ private fun ScheduleDataComponent(
     modifier: Modifier,
     cinemaNetworkRepository: CinemaNetworkRepositoryImpl
 ) {
-    val hallTime = remember { mutableStateOf(SelectedHallTimeState())}
-
-
+//    val hallTime = remember { mutableStateOf(SelectedHallTimeState())}
     if (scheduleState.value == null) {
         PageDataLoadingComponent(
             title = "Загрузка расписания фильма..."
@@ -268,8 +277,8 @@ private fun ScheduleDataComponent(
 
                     SelectableButtonComponent(
                         onClick = {
-                            if (hallTime.value.time != seance.time) {
-                                hallTime.value = SelectedHallTimeState(
+                            if (selectedSeanceState.value?.time != seance.time || selectedSeanceState.value?.hall != schedule.date || selectedSeanceState.value?.hall != seance.hall.name) {
+                                selectedSeanceState.value = SelectedHallTimeState(
                                     time = seance.time,
                                     hall = seance.hall.name,
                                     date = schedule.date
@@ -277,9 +286,9 @@ private fun ScheduleDataComponent(
                             }
                         },
                         text = seance.time,
-                        isSelected = hallTime.value.time == seance.time && hallTime.value.date == schedule.date,
+                        isSelected = selectedSeanceState.value?.time == seance.time && selectedSeanceState.value?.date == schedule.date && selectedSeanceState.value?.hall == seance.hall.name,
                         colors = SelectableButtonColors(
-                            selected = MaterialTheme.colorScheme.inversePrimary,
+                            selected = MaterialTheme.colorScheme.onPrimaryContainer,
                             notSelected = Color.LightGray
                         )
                     )
@@ -357,8 +366,14 @@ private fun SelectableButtonComponent(
         },
         content = {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = text, textAlign = TextAlign.Center)
+                Text(text = text, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold)
             }
         }
     )
+}
+
+private fun onBack() {
+    filmState.value = null
+    scheduleState.value = null
+    selectedSeanceState.value = null
 }
