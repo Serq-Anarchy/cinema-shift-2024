@@ -7,7 +7,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -15,8 +17,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import ru.sedooj.cinemaandroidapp.network.cinema.film.schedule.GetFilmScheduleByIdOutput
 import ru.sedooj.cinemaandroidapp.pages.poster.PosterPage
+import ru.sedooj.cinemaandroidapp.pages.poster.schedule.ChoosePositionPage
 import ru.sedooj.cinemaandroidapp.pages.poster.schedule.SchedulePage
+import ru.sedooj.cinemaandroidapp.pages.poster.schedule.SelectedHallTimeState
 import ru.sedooj.cinemaandroidapp.pages.profile.ProfilePage
 import ru.sedooj.cinemaandroidapp.pages.tickets.TicketsPage
 
@@ -96,6 +101,15 @@ fun PostersNavHost(
             SchedulePage(
                 padding = padding,
                 filmId = postersNavController.currentBackStackEntry?.arguments?.getLong("filmId"),
+                navController = postersNavController
+            )
+        }
+        composable(
+            route = Screens.POSITION.route
+        ) {
+            ChoosePositionPage(
+                modifier = Modifier.fillMaxSize(),
+                padding = padding,
                 navController = postersNavController
             )
         }

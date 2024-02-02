@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import ru.sedooj.cinemaandroidapp.R
@@ -70,19 +72,31 @@ fun String.translate(): String {
 data class SelectedHallTimeState(
     var hall: String = "",
     var time: String = "",
-    var date: String = ""
-)
+    var date: String = "",
+    var places: List<List<Place>>
+) {
+
+    data class Place(
+        var price: Int,
+        var type: String
+    )
+
+}
 
 val filmState = mutableStateOf<GetFilmByIdOutput?>(null)
 val scheduleState = mutableStateOf<GetFilmScheduleByIdOutput?>(null)
 val selectedSeanceState = mutableStateOf<SelectedHallTimeState?>(null)
+
+data class SchedulePageState(
+    val _selectedSeanceState : MutableState<SelectedHallTimeState?> = selectedSeanceState
+)
 
 @Composable
 fun SchedulePage(
     modifier: Modifier = Modifier,
     padding: PaddingValues,
     filmId: Long?,
-    navController: NavController
+    navController: NavController,
 ) {
     BackHandler(onBack = {
         onBack()
@@ -109,11 +123,12 @@ fun SchedulePage(
         },
         floatingActionButton = {
             if (selectedSeanceState.value != null) {
+
                 FloatingActionButton(
                     contentColor = MaterialTheme.colorScheme.primary,
                     backgroundColor = MaterialTheme.colorScheme.inversePrimary,
                     onClick = {
-
+                        navController.navigate(Screens.POSITION.route)
                     }
                 ) {
                     Icon(
@@ -262,7 +277,6 @@ private fun ScheduleDataComponent(
     modifier: Modifier,
     cinemaNetworkRepository: CinemaNetworkRepositoryImpl
 ) {
-//    val hallTime = remember { mutableStateOf(SelectedHallTimeState())}
     if (scheduleState.value == null) {
         PageDataLoadingComponent(
             title = "Загрузка расписания фильма..."
@@ -303,7 +317,15 @@ private fun ScheduleDataComponent(
                                 selectedSeanceState.value = SelectedHallTimeState(
                                     time = seance.time,
                                     hall = seance.hall.name,
-                                    date = schedule.date
+                                    date = schedule.date,
+                                    places = seance.hall.places.map {
+                                        it.map { place ->
+                                            SelectedHallTimeState.Place(
+                                                price = place.price,
+                                                type = place.type
+                                            )
+                                        }
+                                    }
                                 )
                             }
                         },
