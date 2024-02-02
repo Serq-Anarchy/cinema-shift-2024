@@ -20,6 +20,8 @@ import ru.sedooj.cinemaandroidapp.pages.poster.schedule.SchedulePage
 import ru.sedooj.cinemaandroidapp.pages.profile.ProfilePage
 import ru.sedooj.cinemaandroidapp.pages.tickets.TicketsPage
 
+
+
 @Composable
 fun SetupNavigation(
     navController: NavHostController,

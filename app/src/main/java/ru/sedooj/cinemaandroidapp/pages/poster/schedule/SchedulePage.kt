@@ -1,11 +1,10 @@
 package ru.sedooj.cinemaandroidapp.pages.poster.schedule
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,6 +49,17 @@ import ru.sedooj.cinemaandroidapp.network.cinema.film.schedule.GetFilmScheduleBy
 import ru.sedooj.cinemaandroidapp.network.cinema.repository.CinemaNetworkRepositoryImpl
 import ru.sedooj.cinemaandroidapp.ui.design.pages.PageDataLoadingComponent
 import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenContentComponent
+
+fun String.translate(): String {
+    return when (this) {
+        "Red" -> "Красный зал"
+        "Blue" -> "Синий зал"
+        "Green" -> "Зелёный зал"
+        else -> {
+            this
+        }
+    }
+}
 
 @Composable
 fun SchedulePage(
@@ -100,20 +109,23 @@ fun SchedulePage(
     )
 }
 
+val filmState = mutableStateOf<GetFilmByIdOutput?>(null)
+
 @Composable
 private fun FilmPreviewComponent(
     filmId: Long,
     modifier: Modifier,
     cinemaNetworkRepository: CinemaNetworkRepositoryImpl
 ) {
-
-    val filmState = remember { mutableStateOf<GetFilmByIdOutput?>(null) }
-
-    LaunchedEffect(key1 = true) {
-        filmState.value = cinemaNetworkRepository.getFilmById(input = GetFilmByIdInput(id = filmId))
-    }
-
-    if (filmState.value != null) {
+    if (filmState.value == null) {
+        PageDataLoadingComponent(
+            title = "Загрузка данных фильма..."
+        )
+        LaunchedEffect(key1 = filmState.value == null) {
+            filmState.value =
+                cinemaNetworkRepository.getFilmById(input = GetFilmByIdInput(id = filmId))
+        }
+    } else {
         Text(
             text = "Фильм",
             fontSize = MaterialTheme.typography.headlineSmall.fontSize,
@@ -130,13 +142,7 @@ private fun FilmPreviewComponent(
             }
 
         )
-    } else {
-        PageDataLoadingComponent(
-            title = "Загрузка данных фильма..."
-        )
     }
-
-
 }
 
 @Composable
@@ -209,156 +215,77 @@ private fun FilmDataComponent(
     )
 }
 
+val scheduleState = mutableStateOf<GetFilmScheduleByIdOutput?>(null)
+
+private data class SelectedHallTimeState(
+    var hall: String = "",
+    var time: String = "",
+    var date: String = ""
+)
+
 @Composable
 private fun ScheduleDataComponent(
     filmId: Long,
     modifier: Modifier,
     cinemaNetworkRepository: CinemaNetworkRepositoryImpl
 ) {
-    val scheduleState = remember { mutableStateOf<GetFilmScheduleByIdOutput?>(null) }
-    LaunchedEffect(key1 = true) {
-        scheduleState.value = cinemaNetworkRepository.getFilmScheduleById(
-            input = GetFilmScheduleByIdInput(
-                id = filmId
-            )
-        )
-    }
+    val hallTime = remember { mutableStateOf(SelectedHallTimeState())}
 
-    if (scheduleState.value != null) {
-        val horizontalScrollState = rememberScrollState()
-        val selectedDateState = remember { mutableStateOf(0) }
-        Text(
-            text = "Даты",
-            fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-            fontWeight = FontWeight.ExtraBold,
-        )
-        Card(
-            modifier = Modifier
-                .wrapContentHeight()
-                .padding(start = 10.dp, end = 10.dp),
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                modifier = Modifier.horizontalScroll(state = horizontalScrollState)
-            ) {
-                scheduleState.value?.schedules?.forEachIndexed { index, schedule ->
-                    SelectableButtonComponent(
-                        onClick = {
-                            if (selectedDateState.value != index)
-                                selectedDateState.value = index
-                        },
-                        text = schedule.date,
-                        isSelected = selectedDateState.value == index,
-                        colors = SelectableButtonColors(
-                            selected = MaterialTheme.colorScheme.background,
-                            notSelected = Color.Unspecified
-                        )
-                    )
-                }
-            }
-        }
 
-        val redHallScheduleTimeList = remember { mutableListOf<String>() }
-        val blueHallScheduleTimeList = remember { mutableListOf<String>() }
-        val greenHallScheduleTimeList = remember { mutableListOf<String>() }
-
-        val selectedRedHallTime = remember { mutableStateOf(-1) }
-        val selectedBlueHallTime = remember { mutableStateOf(-1) }
-        val selectedGreenHallTime = remember { mutableStateOf(-1) }
-
-        scheduleState.value?.schedules?.forEachIndexed { index, schedule ->
-            if (selectedDateState.value == index) {
-                schedule.seances.forEach { seance ->
-                    when (seance.hall.name) {
-                        "Red" ->
-                            redHallScheduleTimeList.add(seance.time)
-
-                        "Blue" ->
-                            blueHallScheduleTimeList.add(seance.time)
-
-                        "Green" ->
-                            greenHallScheduleTimeList.add(seance.time)
-                    }
-
-//                    val selectedTimeState = remember { mutableStateOf(-1) }
-//
-//                    if (currentHall.value != seance.hall.name)
-//                        Text(
-//                            text = seance.hall.name,
-//                            fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-//                            fontWeight = FontWeight.ExtraBold,
-//                        )
-//
-//                    currentHall.value = seance.hall.name
-//
-//                    SelectableButtonComponent(
-//                        text = seance.time,
-//                        onClick = {
-//                            selectedTimeState.value = index
-//                        },
-//                        isSelected = selectedDateState.value == index
-//                    )
-                }
-            }
-        }
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-            content = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (redHallScheduleTimeList.isNotEmpty())
-                    HallWithTimeComponent(
-                        title = "Red",
-                        items = redHallScheduleTimeList,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            if (selectedRedHallTime.value != it)
-                                selectedRedHallTime.value = it
-                        },
-                        selectedItemIndex = selectedRedHallTime.value,
-                        colors = SelectableButtonColors(
-                            selected = MaterialTheme.colorScheme.primary,
-                            notSelected = Color.LightGray
-                        )
-                    )
-                    HallWithTimeComponent(
-                        title = "Blue",
-                        items = blueHallScheduleTimeList,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            if (selectedBlueHallTime.value != it)
-                                selectedBlueHallTime.value = it
-                        },
-                        selectedItemIndex = selectedBlueHallTime.value,
-                        colors = SelectableButtonColors(
-                            selected = MaterialTheme.colorScheme.primary,
-                            notSelected = Color.LightGray
-                        )
-                    )
-                    HallWithTimeComponent(
-                        title = "Green",
-                        items = greenHallScheduleTimeList,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            if (selectedGreenHallTime.value != it)
-                                selectedGreenHallTime.value = it
-                        },
-                        selectedItemIndex = selectedGreenHallTime.value,
-                        colors = SelectableButtonColors(
-                            selected = MaterialTheme.colorScheme.primary,
-                            notSelected = Color.LightGray
-                        )
-                    )
-                }
-            }
-        )
-    } else {
+    if (scheduleState.value == null) {
         PageDataLoadingComponent(
             title = "Загрузка расписания фильма..."
         )
+        LaunchedEffect(key1 = scheduleState.value == null) {
+            scheduleState.value = cinemaNetworkRepository.getFilmScheduleById(
+                input = GetFilmScheduleByIdInput(
+                    id = filmId
+                )
+            )
+        }
+    } else {
+        val horizontalScrollState = rememberScrollState()
+        val selectedDateState = remember { mutableStateOf(0) }
+
+        SelectableDateComponent(
+            modifier = Modifier.fillMaxWidth(),
+            scheduleState = scheduleState.value,
+            horizontalScrollState = horizontalScrollState,
+            onSelect = {
+                if (selectedDateState.value != it)
+                    selectedDateState.value = it
+            },
+            selectedDate = selectedDateState.value
+        )
+        scheduleState.value?.schedules?.forEachIndexed { index, schedule ->
+            if (selectedDateState.value == index) {
+                var currentHall = ""
+                schedule.seances.forEachIndexed { id, seance ->
+                    if (currentHall != seance.hall.name) {
+                        Text(seance.hall.name.translate())
+                        currentHall = seance.hall.name
+                    }
+
+                    SelectableButtonComponent(
+                        onClick = {
+                            if (hallTime.value.time != seance.time) {
+                                hallTime.value = SelectedHallTimeState(
+                                    time = seance.time,
+                                    hall = seance.hall.name,
+                                    date = schedule.date
+                                )
+                            }
+                        },
+                        text = seance.time,
+                        isSelected = hallTime.value.time == seance.time && hallTime.value.date == schedule.date,
+                        colors = SelectableButtonColors(
+                            selected = MaterialTheme.colorScheme.inversePrimary,
+                            notSelected = Color.LightGray
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -367,6 +294,45 @@ private data class SelectableButtonColors(
     val notSelected: Color = Color.LightGray,
     val disabled: Color = Color.Unspecified
 )
+
+
+@Composable
+private fun SelectableDateComponent(
+    modifier: Modifier,
+    scheduleState: GetFilmScheduleByIdOutput?,
+    horizontalScrollState: ScrollState,
+    onSelect: (Int) -> Unit,
+    selectedDate: Int
+) {
+    Text(
+        text = "Даты",
+        fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+        fontWeight = FontWeight.ExtraBold,
+    )
+    Card(
+        modifier = modifier
+            .wrapContentHeight()
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier.horizontalScroll(state = horizontalScrollState)
+        ) {
+            scheduleState?.schedules?.forEachIndexed { index, schedule ->
+                SelectableButtonComponent(
+                    onClick = {
+                        onSelect(index)
+                    },
+                    text = schedule.date,
+                    isSelected = selectedDate == index,
+                    colors = SelectableButtonColors(
+                        selected = MaterialTheme.colorScheme.background,
+                        notSelected = Color.Unspecified
+                    )
+                )
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -381,7 +347,7 @@ private fun SelectableButtonComponent(
         modifier = Modifier
             .height(40.dp)
             .padding(3.dp)
-            .width(80.dp),
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) colors.selected else colors.notSelected,
             contentColor = MaterialTheme.colorScheme.primary
@@ -395,35 +361,4 @@ private fun SelectableButtonComponent(
             }
         }
     )
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun HallWithTimeComponent(
-    title: String,
-    items: List<String>,
-    modifier: Modifier,
-    onClick: (Int) -> Unit,
-    selectedItemIndex: Int,
-    colors: SelectableButtonColors
-) {
-    Column(modifier = modifier) {
-        Text(text = title)
-        FlowRow(
-            maxItemsInEachRow = 4
-        ) {
-            items.forEachIndexed { index, it ->
-                SelectableButtonComponent(
-                    onClick = {
-                        onClick(index)
-                    },
-                    text = it,
-                    isSelected = selectedItemIndex == index,
-                    colors = colors
-                )
-            }
-
-        }
-
-    }
 }
