@@ -4,15 +4,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -29,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -67,7 +70,12 @@ fun ChoosePositionPage(
                 })
         },
         content = {
-            selectedSeance._selectedSeanceState.value?.let { PositionsChooseComponent(positions = it.places) }
+            selectedSeance._selectedSeanceState.value?.let {
+                PositionsChooseComponent(
+                    positions = it.places,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     )
 
@@ -84,79 +92,61 @@ private class Place(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PositionsChooseComponent(
-    positions: List<List<SelectedHallTimeState.Place>>
+    positions: List<List<SelectedHallTimeState.Place>>,
+    modifier: Modifier
 ) {
     val rowsList = remember {
         mutableStateOf(positions)
     }
-
-    val places = remember { mutableListOf(Place()) }
-
-    FlowColumn(
-        maxItemsInEachColumn = 3,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.TopStart
     ) {
-        rowsList.value.forEachIndexed { i, row ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Ряд ${i+1}",
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize
-                )
-                row.forEachIndexed { j, column ->
-//                Box(
-//                    modifier = Modifier
-//                        .wrapContentSize()
-//                        .clip(RoundedCornerShape(5.dp)), contentAlignment = Alignment.Center
-//                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            Text(
+                "Ряд",
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize
+            )
+            rowsList.value.forEachIndexed { i, row ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        "${i + 1}",
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                    )
+                    FlowRow(
+                        modifier = Modifier.fillMaxHeight(),
+                        maxItemsInEachRow = rowsList.component1().component1().lastIndex + 1,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text(
-                            "Место ${j+1}",
-                            fontSize = MaterialTheme.typography.bodyLarge.fontSize
-                        )
-                        Button(onClick = { /*TODO*/ }) {
-//                        Text("R: $i C: $j")
+                        row.forEachIndexed { j, column ->
+                            Button(
+                                onClick = {
+
+                                },
+                                modifier = Modifier
+                                    .width(20.dp)
+                                    .height(20.dp)
+                                    .clip(RoundedCornerShape(10.dp)),
+                            ) {
+                                Text(
+                                    "${j + 1}",
+                                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
+                                )
+                            }
                         }
                     }
-
-//                }
-
-
                 }
             }
-
         }
+
     }
-
-
-    //            places.add(
-//                element = Place(
-//                    row = i,
-//                    column = j,
-//                    price = column.price,
-//                    type = column.type
-//                )
-//            )
-
-//    val row = remember { mutableIntStateOf(0) }
-//
-//    PositionChooserComponent(
-//        title = "Ряд",
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(),
-//        data = row.intValue,
-//        onChoose = {
-//            row.intValue = it
-//        },
-//        positions = selectedSeance._selectedSeanceState.value.places
-//    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
