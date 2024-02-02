@@ -91,6 +91,7 @@ fun CenteredScreenContentComponent(
     mainPaddingValue: PaddingValues,
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
+    actions: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     Scaffold(
@@ -106,6 +107,9 @@ fun CenteredScreenContentComponent(
                 },
                 navigationIcon = {
                     navigationIcon()
+                },
+                actions = {
+                          actions()
                 },
                 modifier = Modifier.fillMaxWidth()
             )

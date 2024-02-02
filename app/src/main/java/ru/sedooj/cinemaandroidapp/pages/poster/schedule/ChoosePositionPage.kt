@@ -1,5 +1,6 @@
 package ru.sedooj.cinemaandroidapp.pages.poster.schedule
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
@@ -31,6 +33,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -56,6 +60,7 @@ fun ChoosePositionPage(
 
     val selectedSeance =
         SchedulePageState()
+
 
     CenteredScreenContentComponent(
         modifier = Modifier,
@@ -78,7 +83,10 @@ fun ChoosePositionPage(
             selectedSeance._selectedSeanceState.value?.let {
                 PositionsChooseComponent(
                     positions = it.places,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    onContinue = {
+
+                    }
                 )
             }
         }
@@ -87,24 +95,26 @@ fun ChoosePositionPage(
 
 }
 
-private class Place(
-    var row: Int = -1,
-    var column: Int = -1,
-    var price: Int = -1,
-    var type: String = "NOT_SET"
+class Place(
+    val row: Int = -1,
+    val column: Int = -1,
+    val price: Int = -1,
+    val type: String = "NOT_SET"
 )
+
+val selectedSeats =  mutableStateListOf<List<Place>>()
+val totalPrice =  mutableIntStateOf(0)
 
 @Composable
 private fun PositionsChooseComponent(
     positions: List<List<SelectedHallTimeState.Place>>,
     modifier: Modifier,
+    onContinue: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     val rowsList = remember {
         mutableStateOf(positions)
     }
-
-    val selectedSeats = remember { mutableListOf<Place>() }
 
     Column(
         modifier = modifier.verticalScroll(state = scrollState),
@@ -116,21 +126,37 @@ private fun PositionsChooseComponent(
             modifier = modifier,
             onSeatSelect = { place ->
                 selectedSeats.add(
-                    Place(
-                        column = place.column,
-                        row = place.row,
-                        price = place.price,
-                        type = place.type
+                    listOf(
+                        Place(
+                            column = place.column,
+                            row = place.row,
+                            type = place.type,
+                            price = place.price
+                        )
                     )
                 )
+                totalPrice.intValue += place.price
+            },
+            onSeatsUnSelect = { place ->
+                var id = -1
+                selectedSeats.component1().forEachIndexed { i, it ->
+                    if (
+                        it.row == place.row && it.column == place.column
+                    ) {
+                        id = i
+                        totalPrice.intValue -= place.price
+                    }
+                }
+                selectedSeats.removeAt(id)
             }
         )
         DataWithContinueButtonComponent(
             modifier = modifier,
             onContinue = {
-
+                onContinue()
             },
-            selectedSeatsState = selectedSeats
+            selectedSeatsState = selectedSeats,
+            totalPrice = totalPrice
 
         )
     }
@@ -140,6 +166,7 @@ private fun PositionsChooseComponent(
 @Composable
 private fun SeatsMatrixComponent(
     onSeatSelect: (Place) -> Unit,
+    onSeatsUnSelect: (Place) -> Unit,
     places: MutableState<List<List<SelectedHallTimeState.Place>>>,
     modifier: Modifier
 ) {
@@ -187,26 +214,46 @@ private fun SeatsMatrixComponent(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         row.forEachIndexed { j, column ->
+
+                            val isSelected = remember { mutableStateOf(false) }
                             Button(
                                 onClick = {
-                                    onSeatSelect(
-                                        Place(
-                                            row = i,
-                                            column = j,
-                                            price = column.price,
-                                            type = column.type
+                                    if (!isSelected.value) {
+                                        onSeatSelect(
+                                            Place(
+                                                row = i,
+                                                column = j,
+                                                price = column.price,
+                                                type = column.type
+                                            )
                                         )
-                                    )
+                                        isSelected.value = true
+                                    } else {
+                                        onSeatsUnSelect(
+                                            Place(
+                                                row = i,
+                                                column = j,
+                                                price = column.price,
+                                                type = column.type
+                                            )
+                                        )
+                                        isSelected.value = false
+                                    }
                                 },
-                                modifier = Modifier
-                                    .width(20.dp)
-                                    .height(20.dp)
-                                    .clip(RoundedCornerShape(10.dp)),
-                            ) {
-                                Text(
-                                    "${j + 1}",
-                                    fontSize = MaterialTheme.typography.bodyMedium.fontSize
-                                )
+                                modifier = if (isSelected.value) {
+                                    Modifier
+                                        .width(25.dp)
+                                        .height(25.dp)
+                                        .clip(CircleShape)
+                                } else {
+                                    Modifier
+                                        .width(20.dp)
+                                        .height(20.dp)
+                                        .clip(CircleShape)
+                                }
+                            )
+                            {
+
                             }
                         }
                     }
@@ -222,14 +269,14 @@ private fun SeatsMatrixComponent(
 private fun DataWithContinueButtonComponent(
     modifier: Modifier,
     onContinue: () -> Unit,
-    selectedSeatsState: MutableList<Place>,
+    selectedSeatsState: MutableList<List<Place>>,
+    totalPrice: MutableState<Int>
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val totalPrice = remember { mutableIntStateOf(0) }
         Text(
             text = "Места",
             fontSize = MaterialTheme.typography.bodyLarge.fontSize,
@@ -238,16 +285,17 @@ private fun DataWithContinueButtonComponent(
             maxItemsInEachColumn = 3,
             modifier = Modifier.fillMaxSize()
         ) {
-            selectedSeatsState.forEach {
-                Text(
-                    text = "${it.row} ряд - ${it.column} место.",
-                    fontSize = MaterialTheme.typography.labelMedium.fontSize,
-                )
-                totalPrice.intValue += it.price
+            selectedSeatsState.forEachIndexed { i, row ->
+                row.forEachIndexed { j, place ->
+                    Text(
+                        text = "${place.row + 1} ряд - ${place.column + 1} место.",
+                        fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                    )
+                }
             }
         }
         Text(
-            text = "Итого: ${totalPrice.intValue}₽",
+            text = "Итого: ${totalPrice.value}₽",
             fontSize = MaterialTheme.typography.labelMedium.fontSize,
         )
         Button(
