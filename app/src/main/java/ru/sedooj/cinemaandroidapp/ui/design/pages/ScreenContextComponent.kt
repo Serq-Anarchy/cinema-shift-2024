@@ -80,3 +80,61 @@ fun ScrollableCenteredScreenContentComponent(
         }
     )
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CenteredScreenContentComponent(
+    modifier: Modifier,
+    title: String = "Title",
+    navigationIcon: @Composable () -> Unit,
+    mainPaddingValue: PaddingValues,
+    floatingActionButton: @Composable () -> Unit = {},
+    floatingActionButtonPosition: FabPosition = FabPosition.End,
+    content: @Composable () -> Unit
+) {
+    Scaffold(
+        modifier = modifier.padding(mainPaddingValue),
+        topBar = {
+            androidx.compose.material3.TopAppBar(
+                title = {
+                    Text(
+                        text = title,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = MaterialTheme.typography.headlineMedium.fontSize
+                    )
+                },
+                navigationIcon = {
+                    navigationIcon()
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        floatingActionButton = {
+            floatingActionButton()
+        },
+        floatingActionButtonPosition = floatingActionButtonPosition,
+        content = {
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(it),
+                content = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(
+                            15.dp,
+                            alignment = Alignment.Top
+                        ),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        content = {
+                            Spacer(modifier = Modifier.height(0.dp))
+                            content()
+                        }
+                    )
+                }
+            )
+        }
+    )
+}

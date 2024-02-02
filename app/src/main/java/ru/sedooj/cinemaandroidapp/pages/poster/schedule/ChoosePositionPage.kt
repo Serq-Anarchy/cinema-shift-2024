@@ -1,13 +1,15 @@
 package ru.sedooj.cinemaandroidapp.pages.poster.schedule
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,12 +29,15 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ru.sedooj.cinemaandroidapp.R
 import ru.sedooj.cinemaandroidapp.navigation.Screens
-import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenContentComponent
+import ru.sedooj.cinemaandroidapp.ui.design.pages.CenteredScreenContentComponent
 
 @Composable
 fun ChoosePositionPage(
@@ -52,7 +57,7 @@ fun ChoosePositionPage(
     val selectedSeance =
         SchedulePageState()
 
-    ScrollableCenteredScreenContentComponent(
+    CenteredScreenContentComponent(
         modifier = Modifier,
         mainPaddingValue = PaddingValues(start = 10.dp, end = 10.dp),
         title = Screens.POSITION.pageName,
@@ -83,21 +88,61 @@ fun ChoosePositionPage(
 }
 
 private class Place(
-    val row: Int = 0,
-    val column: Int = 0,
-    val price: Int = 0,
-    val type: String = "Unspecified"
+    var row: Int = -1,
+    var column: Int = -1,
+    var price: Int = -1,
+    var type: String = "NOT_SET"
 )
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PositionsChooseComponent(
     positions: List<List<SelectedHallTimeState.Place>>,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
+    val scrollState = rememberScrollState()
     val rowsList = remember {
         mutableStateOf(positions)
     }
+
+    val selectedSeats = remember { mutableListOf<Place>() }
+
+    Column(
+        modifier = modifier.verticalScroll(state = scrollState),
+        verticalArrangement = Arrangement.spacedBy(30.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        SeatsMatrixComponent(
+            places = rowsList,
+            modifier = modifier,
+            onSeatSelect = { place ->
+                selectedSeats.add(
+                    Place(
+                        column = place.column,
+                        row = place.row,
+                        price = place.price,
+                        type = place.type
+                    )
+                )
+            }
+        )
+        DataWithContinueButtonComponent(
+            modifier = modifier,
+            onContinue = {
+
+            },
+            selectedSeatsState = selectedSeats
+
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SeatsMatrixComponent(
+    onSeatSelect: (Place) -> Unit,
+    places: MutableState<List<List<SelectedHallTimeState.Place>>>,
+    modifier: Modifier
+) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.TopStart
@@ -106,29 +151,52 @@ private fun PositionsChooseComponent(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Экран", textAlign = TextAlign.Center)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(10.dp)
+                        .padding(start = 10.dp, end = 10.dp)
+                        .border(2.dp, shape = RoundedCornerShape(5.dp), color = Color.LightGray)
+                        .background(color = Color.LightGray, shape = RoundedCornerShape(5.dp))
+                )
+            }
             Text(
                 "Ряд",
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
-            rowsList.value.forEachIndexed { i, row ->
+            places.value.forEachIndexed { i, row ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         "${i + 1}",
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize
                     )
                     FlowRow(
-                        modifier = Modifier.fillMaxHeight(),
-                        maxItemsInEachRow = rowsList.component1().component1().lastIndex + 1,
+                        modifier = Modifier.fillMaxSize(),
+                        maxItemsInEachRow = places.component1().lastIndex + 1,
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         row.forEachIndexed { j, column ->
                             Button(
                                 onClick = {
-
+                                    onSeatSelect(
+                                        Place(
+                                            row = i,
+                                            column = j,
+                                            price = column.price,
+                                            type = column.type
+                                        )
+                                    )
                                 },
                                 modifier = Modifier
                                     .width(20.dp)
@@ -144,6 +212,55 @@ private fun PositionsChooseComponent(
                     }
                 }
             }
+        }
+
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun DataWithContinueButtonComponent(
+    modifier: Modifier,
+    onContinue: () -> Unit,
+    selectedSeatsState: MutableList<Place>,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val totalPrice = remember { mutableIntStateOf(0) }
+        Text(
+            text = "Места",
+            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+        )
+        FlowColumn(
+            maxItemsInEachColumn = 3,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            selectedSeatsState.forEach {
+                Text(
+                    text = "${it.row} ряд - ${it.column} место.",
+                    fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                )
+                totalPrice.intValue += it.price
+            }
+        }
+        Text(
+            text = "Итого: ${totalPrice.intValue}₽",
+            fontSize = MaterialTheme.typography.labelMedium.fontSize,
+        )
+        Button(
+            onClick = {
+                onContinue()
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Text(
+                text = "К оплате",
+                fontSize = MaterialTheme.typography.labelLarge.fontSize,
+            )
         }
 
     }
