@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -28,6 +29,8 @@ fun ScrollableCenteredScreenContentComponent(
     title: String = "Title",
     navigationIcon: @Composable () -> Unit,
     mainPaddingValue: PaddingValues,
+    floatingActionButton: @Composable () -> Unit = {},
+    floatingActionButtonPosition: FabPosition = FabPosition.End,
     content: @Composable () -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -36,7 +39,11 @@ fun ScrollableCenteredScreenContentComponent(
         topBar = {
             androidx.compose.material3.TopAppBar(
                 title = {
-                    Text(text = title, fontWeight = FontWeight.ExtraBold, fontSize = MaterialTheme.typography.headlineMedium.fontSize)
+                    Text(
+                        text = title,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = MaterialTheme.typography.headlineMedium.fontSize
+                    )
                 },
                 navigationIcon = {
                     navigationIcon()
@@ -44,6 +51,10 @@ fun ScrollableCenteredScreenContentComponent(
                 modifier = Modifier.fillMaxWidth()
             )
         },
+        floatingActionButton = {
+            floatingActionButton()
+        },
+        floatingActionButtonPosition = floatingActionButtonPosition,
         content = {
             Surface(
                 modifier = Modifier
