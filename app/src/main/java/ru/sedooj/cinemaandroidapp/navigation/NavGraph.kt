@@ -7,7 +7,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -16,9 +18,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ru.sedooj.cinemaandroidapp.pages.poster.PosterPage
+import ru.sedooj.cinemaandroidapp.pages.poster.schedule.CardDetailsPage
+import ru.sedooj.cinemaandroidapp.pages.poster.schedule.ChoosePositionPage
 import ru.sedooj.cinemaandroidapp.pages.poster.schedule.SchedulePage
 import ru.sedooj.cinemaandroidapp.pages.profile.ProfilePage
 import ru.sedooj.cinemaandroidapp.pages.tickets.TicketsPage
+
 
 @Composable
 fun SetupNavigation(
@@ -79,8 +84,10 @@ fun PostersNavHost(
     padding: PaddingValues
 ) {
     val postersNavController = rememberNavController()
-    NavHost(navController = postersNavController,
-        startDestination = Screens.POSTER.route) {
+    NavHost(
+        navController = postersNavController,
+        startDestination = Screens.POSTER.route
+    ) {
         composable(
             route = Screens.POSTER.route
         ) {
@@ -97,16 +104,37 @@ fun PostersNavHost(
                 navController = postersNavController
             )
         }
+        composable(
+            route = Screens.POSITION.route
+        ) {
+            ChoosePositionPage(
+                modifier = Modifier.fillMaxSize(),
+                padding = padding,
+                navController = postersNavController
+            )
+        }
+        composable(
+            route = Screens.CARD_DETAILS.route
+        ) {
+            CardDetailsPage(
+                modifier = Modifier.fillMaxSize(),
+                paddingValues = padding,
+                navController = postersNavController
+            )
+        }
 
     }
 }
+
 @Composable
 fun TicketsNavHost(
     padding: PaddingValues
 ) {
     val ticketsNavController = rememberNavController()
-    NavHost(navController = ticketsNavController,
-        startDestination = Screens.TICKETS.route) {
+    NavHost(
+        navController = ticketsNavController,
+        startDestination = Screens.TICKETS.route
+    ) {
         composable(
             route = Screens.TICKETS.route
         ) {
@@ -114,13 +142,16 @@ fun TicketsNavHost(
         }
     }
 }
+
 @Composable
 fun ProfileNavHost(
     padding: PaddingValues
 ) {
     val profileNavController = rememberNavController()
-    NavHost(navController = profileNavController,
-        startDestination = Screens.PROFILE.route) {
+    NavHost(
+        navController = profileNavController,
+        startDestination = Screens.PROFILE.route
+    ) {
         composable(
             route = Screens.PROFILE.route
         ) {

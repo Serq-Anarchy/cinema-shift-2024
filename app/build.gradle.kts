@@ -52,7 +52,6 @@ android {
 }
 
 dependencies {
-
     // Navigation
     implementation(libs.navigation.compose)
 

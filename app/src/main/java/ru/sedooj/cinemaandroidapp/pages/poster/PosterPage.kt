@@ -1,7 +1,6 @@
 package ru.sedooj.cinemaandroidapp.pages.poster
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,14 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,7 +41,12 @@ import ru.sedooj.cinemaandroidapp.network.Client
 import ru.sedooj.cinemaandroidapp.network.Data
 import ru.sedooj.cinemaandroidapp.network.cinema.repository.CinemaNetworkRepositoryImpl
 import ru.sedooj.cinemaandroidapp.network.cinema.todayFilms.AllTodayFilmsOutput
+import ru.sedooj.cinemaandroidapp.ui.design.pages.HorizontalListCardComponent
+import ru.sedooj.cinemaandroidapp.ui.design.pages.PageDataLoadingComponent
 import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenContentComponent
+
+
+val state = mutableStateOf<AllTodayFilmsOutput?>(null)
 
 @Composable
 fun PosterPage(
@@ -61,12 +61,12 @@ fun PosterPage(
         navigationIcon = {},
         content = {
             val client = remember { Client.create() }
-            val state = remember { mutableStateOf<AllTodayFilmsOutput?>(null) }
             val cinemaNetworkRepository = remember { CinemaNetworkRepositoryImpl(client = client) }
 
-            LaunchedEffect(key1 = true) {
-                state.value = cinemaNetworkRepository.getAllTodayFilms()
-            }
+            if (state.value == null)
+                LaunchedEffect(key1 = state.value == null) {
+                    state.value = cinemaNetworkRepository.getAllTodayFilms()
+                }
 
             if (state.value != null) {
                 state.value?.films?.forEach { film ->
@@ -94,24 +94,9 @@ fun PosterPage(
                     )
                 }
             } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                    content = {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            androidx.compose.material.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                            Text(
-                                text = "Загрузка списка фильмов...",
-                                fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
+                PageDataLoadingComponent(
+                    title = "Загрузка списка фильмов..."
                 )
-
             }
         }
     )
@@ -193,14 +178,15 @@ private fun PreviewCardComponent(
                         contentDescription = "Image",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier
-                            .fillMaxWidth()
+
                             .padding(0.dp)
                             .sizeIn(
                                 minWidth = 450.dp,
                                 minHeight = 630.dp,
                                 maxHeight = 450.dp,
-                                maxWidth = 630.dp
+                                maxWidth = 350.dp
                             )
+                            .fillMaxWidth()
                             .clip(shape = RoundedCornerShape(15.dp)),
                     )
                 }
@@ -246,55 +232,6 @@ private fun PreviewCardComponent(
                     }
                 }
             )
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun HorizontalListCardComponent(
-    title: String,
-    list: List<String>,
-    icon: Painter? = null
-) {
-    Text(
-        text = title,
-        textAlign = TextAlign.Center,
-        fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
-        fontWeight = FontWeight.Bold
-    )
-
-    val horizontalScrollState = rememberScrollState()
-    Row(
-        modifier = Modifier.horizontalScroll(horizontalScrollState),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        content = {
-            list.forEach { item ->
-                Card(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .padding(3.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    onClick = {
-                        /*TODO: Открыть страницу чего-либо*/
-                    }
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(3.dp)
-                    ) {
-                        if (icon != null) {
-                            Icon(
-                                painter = icon,
-                                contentDescription = "Icon"
-                            )
-                        }
-                        Text(text = item)
-                    }
-                }
-            }
         }
     )
 }
@@ -355,7 +292,10 @@ private fun DetailsCardBarComponent(
 
             HorizontalListCardComponent(
                 title = "Жанры:",
-                list = genres
+                list = genres,
+                onClick = {
+
+                }
             )
 
             HorizontalListCardComponent(
@@ -363,7 +303,10 @@ private fun DetailsCardBarComponent(
                 list = actors.map { actor ->
                     actor.fullName
                 },
-                icon = painterResource(id = R.drawable.user)
+                icon = painterResource(id = R.drawable.user),
+                onClick = {
+
+                }
             )
 
             HorizontalListCardComponent(
@@ -371,7 +314,10 @@ private fun DetailsCardBarComponent(
                 list = directors.map { director ->
                     director.fullName
                 },
-                icon = painterResource(id = R.drawable.user)
+                icon = painterResource(id = R.drawable.user),
+                onClick = {
+
+                }
             )
 
             Row(
