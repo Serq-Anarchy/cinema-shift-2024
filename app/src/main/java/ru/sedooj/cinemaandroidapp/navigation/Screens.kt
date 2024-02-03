@@ -9,6 +9,7 @@ enum class Screens(val route: String, val pageName: String, val icon: Int, val i
     TICKETS("TICKETS_PAGE", "Билеты", icon = R.drawable.ticket, isBottomBarPage = true),
     PROFILE("PROFILE_PAGE", "Профиль", icon = R.drawable.user, isBottomBarPage = true),
     SCHEDULE("SCHEDULE_PAGE", "Расписание", icon = R.drawable.poster, isBottomBarPage = false),
-    POSITION("POSITION_PAGE", "Выбор места", icon = R.drawable.poster, isBottomBarPage = false)
+    POSITION("POSITION_PAGE", "Выбор места", icon = R.drawable.poster, isBottomBarPage = false),
+    CARD_DETAILS("CARD_DETAILS", "Данные карты", icon = R.drawable.poster, isBottomBarPage = false)
 
 }

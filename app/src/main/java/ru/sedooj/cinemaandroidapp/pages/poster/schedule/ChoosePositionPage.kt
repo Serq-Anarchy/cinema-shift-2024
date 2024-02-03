@@ -1,8 +1,8 @@
 package ru.sedooj.cinemaandroidapp.pages.poster.schedule
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,17 +36,18 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.CoroutineScope
 import ru.sedooj.cinemaandroidapp.R
 import ru.sedooj.cinemaandroidapp.navigation.Screens
 import ru.sedooj.cinemaandroidapp.ui.design.pages.CenteredScreenContentComponent
@@ -60,7 +61,6 @@ fun ChoosePositionPage(
 
     val selectedSeance =
         SchedulePageState()
-
 
     CenteredScreenContentComponent(
         modifier = Modifier,
@@ -85,7 +85,7 @@ fun ChoosePositionPage(
                     positions = it.places,
                     modifier = Modifier.fillMaxSize(),
                     onContinue = {
-
+                        navController.navigate(Screens.CARD_DETAILS.route)
                     }
                 )
             }
@@ -102,14 +102,14 @@ class Place(
     val type: String = "NOT_SET"
 )
 
-val selectedSeats =  mutableStateListOf<List<Place>>()
-val totalPrice =  mutableIntStateOf(0)
+val selectedSeats = mutableStateListOf<List<Place>>()
+val totalPrice = mutableIntStateOf(0)
 
 @Composable
 private fun PositionsChooseComponent(
     positions: List<List<SelectedHallTimeState.Place>>,
     modifier: Modifier,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val rowsList = remember {
@@ -148,6 +148,7 @@ private fun PositionsChooseComponent(
                     }
                 }
                 selectedSeats.removeAt(id)
+
             }
         )
         DataWithContinueButtonComponent(
@@ -272,18 +273,22 @@ private fun DataWithContinueButtonComponent(
     selectedSeatsState: MutableList<List<Place>>,
     totalPrice: MutableState<Int>
 ) {
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Места",
+            text = "Выбранные места",
             fontSize = MaterialTheme.typography.bodyLarge.fontSize,
         )
         FlowColumn(
             maxItemsInEachColumn = 3,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .horizontalScroll(state = scrollState)
         ) {
             selectedSeatsState.forEachIndexed { i, row ->
                 row.forEachIndexed { j, place ->
@@ -296,7 +301,8 @@ private fun DataWithContinueButtonComponent(
         }
         Text(
             text = "Итого: ${totalPrice.value}₽",
-            fontSize = MaterialTheme.typography.labelMedium.fontSize,
+            fontWeight = FontWeight.Bold,
+            fontSize = MaterialTheme.typography.titleMedium.fontSize,
         )
         Button(
             onClick = {
