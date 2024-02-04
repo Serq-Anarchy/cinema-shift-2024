@@ -1,5 +1,6 @@
 package ru.sedooj.cinemaandroidapp.pages.poster.schedule
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -36,7 +37,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,10 +47,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import kotlinx.coroutines.CoroutineScope
 import ru.sedooj.cinemaandroidapp.R
 import ru.sedooj.cinemaandroidapp.navigation.Screens
 import ru.sedooj.cinemaandroidapp.ui.design.pages.CenteredScreenContentComponent
+import ru.sedooj.cinemaandroidapp.ui.design.pages.NavigationBackButton
 
 @Composable
 fun ChoosePositionPage(
@@ -62,22 +62,17 @@ fun ChoosePositionPage(
     val selectedSeance =
         SchedulePageState()
 
+    BackHandler(onBack = {
+        navController.popBackStack()
+        onBack()
+    })
+
     CenteredScreenContentComponent(
-        modifier = Modifier,
+        modifier = modifier.padding(padding),
         mainPaddingValue = PaddingValues(start = 10.dp, end = 10.dp),
         title = Screens.POSITION.pageName,
         navigationIcon = {
-            IconButton(
-                onClick = {
-                    navController.popBackStack()
-                },
-                modifier = Modifier,
-                content = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_back),
-                        contentDescription = "Back",
-                    )
-                })
+            NavigationBackButton(navController = navController, subAction = { onBack()})
         },
         content = {
             selectedSeance._selectedSeanceState.value?.let {
@@ -104,6 +99,11 @@ class Place(
 
 val selectedSeats = mutableStateListOf<List<Place>>()
 val totalPrice = mutableIntStateOf(0)
+
+private fun onBack() {
+    selectedSeats.clear()
+    totalPrice.intValue = 0
+}
 
 @Composable
 private fun PositionsChooseComponent(
@@ -138,17 +138,16 @@ private fun PositionsChooseComponent(
                 totalPrice.intValue += place.price
             },
             onSeatsUnSelect = { place ->
-                var id = -1
-                selectedSeats.component1().forEachIndexed { i, it ->
-                    if (
-                        it.row == place.row && it.column == place.column
-                    ) {
-                        id = i
-                        totalPrice.intValue -= place.price
+                selectedSeats.forEachIndexed {index, listPlace ->
+                    listPlace.forEach{
+                        if (
+                            it.row == place.row && it.column == place.column
+                        ) {
+                            selectedSeats.removeAt(index)
+                            totalPrice.intValue -= place.price
+                        }
                     }
                 }
-                selectedSeats.removeAt(id)
-
             }
         )
         DataWithContinueButtonComponent(
@@ -198,14 +197,14 @@ private fun SeatsMatrixComponent(
                 "Ряд",
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
-            places.value.forEachIndexed { i, row ->
+            places.value.forEachIndexed { rowId, row ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        "${i + 1}",
+                        "${rowId + 1}",
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize
                     )
                     FlowRow(
@@ -214,16 +213,15 @@ private fun SeatsMatrixComponent(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        row.forEachIndexed { j, column ->
-
+                        row.forEachIndexed { columnId, column ->
                             val isSelected = remember { mutableStateOf(false) }
                             Button(
                                 onClick = {
                                     if (!isSelected.value) {
                                         onSeatSelect(
                                             Place(
-                                                row = i,
-                                                column = j,
+                                                row = rowId,
+                                                column = columnId,
                                                 price = column.price,
                                                 type = column.type
                                             )
@@ -232,8 +230,8 @@ private fun SeatsMatrixComponent(
                                     } else {
                                         onSeatsUnSelect(
                                             Place(
-                                                row = i,
-                                                column = j,
+                                                row = rowId,
+                                                column = columnId,
                                                 price = column.price,
                                                 type = column.type
                                             )
@@ -288,7 +286,9 @@ private fun DataWithContinueButtonComponent(
             maxItemsInEachColumn = 3,
             modifier = Modifier
                 .fillMaxSize()
-                .horizontalScroll(state = scrollState)
+                .horizontalScroll(state = scrollState),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.Center
         ) {
             selectedSeatsState.forEachIndexed { i, row ->
                 row.forEachIndexed { j, place ->

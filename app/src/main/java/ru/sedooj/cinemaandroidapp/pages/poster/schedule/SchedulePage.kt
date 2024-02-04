@@ -18,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,7 +35,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -53,6 +51,7 @@ import ru.sedooj.cinemaandroidapp.network.cinema.film.GetFilmByIdOutput
 import ru.sedooj.cinemaandroidapp.network.cinema.film.schedule.GetFilmScheduleByIdInput
 import ru.sedooj.cinemaandroidapp.network.cinema.film.schedule.GetFilmScheduleByIdOutput
 import ru.sedooj.cinemaandroidapp.network.cinema.repository.CinemaNetworkRepositoryImpl
+import ru.sedooj.cinemaandroidapp.ui.design.pages.NavigationBackButton
 import ru.sedooj.cinemaandroidapp.ui.design.pages.PageDataLoadingComponent
 import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenContentComponent
 
@@ -105,19 +104,7 @@ fun SchedulePage(
         mainPaddingValue = padding,
         title = Screens.SCHEDULE.pageName,
         navigationIcon = {
-            IconButton(
-                onClick = {
-                    onBack()
-                    navController.popBackStack()
-                },
-                modifier = Modifier,
-                content = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_back),
-                        contentDescription = "Back",
-                    )
-                })
-
+            NavigationBackButton(navController = navController, subAction = { onBack() })
         },
         floatingActionButton = {
             if (selectedSeanceState.value != null) {
@@ -392,7 +379,7 @@ private fun SelectableButtonComponent(
     text: String,
     isSelected: Boolean,
     colors: SelectableButtonColors,
-    modifier : Modifier
+    modifier: Modifier
 ) {
     Card(
         shape = RoundedCornerShape(6.dp),
