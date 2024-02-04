@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -178,16 +177,14 @@ private fun PreviewCardComponent(
                         contentDescription = "Image",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier
-
-                            .padding(0.dp)
                             .sizeIn(
                                 minWidth = 450.dp,
                                 minHeight = 630.dp,
                                 maxHeight = 450.dp,
-                                maxWidth = 350.dp
+                                maxWidth = 400.dp
                             )
                             .fillMaxWidth()
-                            .clip(shape = RoundedCornerShape(15.dp)),
+                            .clip(shape = RoundedCornerShape(10.dp)),
                     )
                 }
             )
@@ -207,13 +204,14 @@ private fun PreviewCardComponent(
                             fontSize = MaterialTheme.typography.headlineMedium.fontSize,
                             fontWeight = FontWeight.ExtraBold,
                             overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
+                            maxLines = 1,
+                            color = MaterialTheme.colorScheme.inverseSurface,
                         )
                         // Subtitle
                         Text(
                             text = subtitle,
                             fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-                            color = Color.DarkGray,
+                            color = MaterialTheme.colorScheme.inverseSurface,
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 1
                         )
@@ -293,9 +291,6 @@ private fun DetailsCardBarComponent(
             HorizontalListCardComponent(
                 title = "Жанры:",
                 list = genres,
-                onClick = {
-
-                }
             )
 
             HorizontalListCardComponent(
@@ -304,9 +299,6 @@ private fun DetailsCardBarComponent(
                     actor.fullName
                 },
                 icon = painterResource(id = R.drawable.user),
-                onClick = {
-
-                }
             )
 
             HorizontalListCardComponent(
@@ -315,9 +307,6 @@ private fun DetailsCardBarComponent(
                     director.fullName
                 },
                 icon = painterResource(id = R.drawable.user),
-                onClick = {
-
-                }
             )
 
             Row(

@@ -1,7 +1,6 @@
 package ru.sedooj.cinemaandroidapp.pages.poster.schedule
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -17,10 +16,8 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,14 +34,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import ru.sedooj.cinemaandroidapp.R
@@ -55,6 +51,7 @@ import ru.sedooj.cinemaandroidapp.network.cinema.film.GetFilmByIdOutput
 import ru.sedooj.cinemaandroidapp.network.cinema.film.schedule.GetFilmScheduleByIdInput
 import ru.sedooj.cinemaandroidapp.network.cinema.film.schedule.GetFilmScheduleByIdOutput
 import ru.sedooj.cinemaandroidapp.network.cinema.repository.CinemaNetworkRepositoryImpl
+import ru.sedooj.cinemaandroidapp.ui.design.pages.NavigationBackButton
 import ru.sedooj.cinemaandroidapp.ui.design.pages.PageDataLoadingComponent
 import ru.sedooj.cinemaandroidapp.ui.design.pages.ScrollableCenteredScreenContentComponent
 
@@ -88,7 +85,7 @@ val scheduleState = mutableStateOf<GetFilmScheduleByIdOutput?>(null)
 val selectedSeanceState = mutableStateOf<SelectedHallTimeState?>(null)
 
 data class SchedulePageState(
-    val _selectedSeanceState : MutableState<SelectedHallTimeState?> = selectedSeanceState
+    val _selectedSeanceState: MutableState<SelectedHallTimeState?> = selectedSeanceState
 )
 
 @Composable
@@ -107,19 +104,7 @@ fun SchedulePage(
         mainPaddingValue = padding,
         title = Screens.SCHEDULE.pageName,
         navigationIcon = {
-            IconButton(
-                onClick = {
-                    onBack()
-                    navController.popBackStack()
-                },
-                modifier = Modifier,
-                content = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_back),
-                        contentDescription = "Back",
-                    )
-                })
-
+            NavigationBackButton(navController = navController, subAction = { onBack() })
         },
         floatingActionButton = {
             if (selectedSeanceState.value != null) {
@@ -224,14 +209,13 @@ private fun FilmDataComponent(
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(0.dp)
                             .sizeIn(
                                 minWidth = 50.dp,
                                 minHeight = 50.dp,
                                 maxHeight = 100.dp,
                                 maxWidth = 200.dp
                             )
-                            .clip(shape = RoundedCornerShape(15.dp)),
+                            .clip(shape = RoundedCornerShape(10.dp)),
                     )
                 }
             )
@@ -257,8 +241,7 @@ private fun FilmDataComponent(
                         // Description
                         Text(
                             text = description,
-                            fontSize = MaterialTheme.typography.labelLarge.fontSize,
-                            color = Color.DarkGray,
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 3
                         )
@@ -290,20 +273,20 @@ private fun ScheduleDataComponent(
         }
     } else {
         val horizontalScrollState = rememberScrollState()
-        val selectedDateState = remember { mutableStateOf(0) }
+        val selectedDateState = remember { mutableIntStateOf(0) }
 
         SelectableDateComponent(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             scheduleState = scheduleState.value,
             horizontalScrollState = horizontalScrollState,
             onSelect = {
-                if (selectedDateState.value != it)
-                    selectedDateState.value = it
+                if (selectedDateState.intValue != it)
+                    selectedDateState.intValue = it
             },
-            selectedDate = selectedDateState.value
+            selectedDate = selectedDateState.intValue
         )
         scheduleState.value?.schedules?.forEachIndexed { index, schedule ->
-            if (selectedDateState.value == index) {
+            if (selectedDateState.intValue == index) {
                 var currentHall = ""
                 schedule.seances.forEachIndexed { id, seance ->
                     if (currentHall != seance.hall.name) {
@@ -332,9 +315,10 @@ private fun ScheduleDataComponent(
                         text = seance.time,
                         isSelected = selectedSeanceState.value?.time == seance.time && selectedSeanceState.value?.date == schedule.date && selectedSeanceState.value?.hall == seance.hall.name,
                         colors = SelectableButtonColors(
-                            selected = MaterialTheme.colorScheme.onPrimaryContainer,
-                            notSelected = Color.LightGray
-                        )
+                            selected = MaterialTheme.colorScheme.inversePrimary,
+                            notSelected = MaterialTheme.colorScheme.inverseOnSurface
+                        ),
+                        modifier = modifier
                     )
                 }
             }
@@ -380,7 +364,8 @@ private fun SelectableDateComponent(
                     colors = SelectableButtonColors(
                         selected = MaterialTheme.colorScheme.background,
                         notSelected = Color.Unspecified
-                    )
+                    ),
+                    modifier = modifier
                 )
             }
         }
@@ -393,11 +378,12 @@ private fun SelectableButtonComponent(
     onClick: () -> Unit,
     text: String,
     isSelected: Boolean,
-    colors: SelectableButtonColors
+    colors: SelectableButtonColors,
+    modifier: Modifier
 ) {
     Card(
         shape = RoundedCornerShape(6.dp),
-        modifier = Modifier
+        modifier = modifier
             .height(40.dp)
             .padding(3.dp)
             .fillMaxWidth(),
